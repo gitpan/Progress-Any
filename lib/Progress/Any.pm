@@ -13,14 +13,14 @@ use Progress::Any::Output::Null;
 #    '-=' => \&_decrement,
 #    ;
 
-our $VERSION = '0.01'; # VERSION
+our $VERSION = '0.02'; # VERSION
 
 sub import {
     my ($self, @args) = @_;
     my $caller = caller();
     for (@args) {
         if ($_ eq '$progress') {
-            my $progress = $self->get_indicator(task => 'main');
+            my $progress = $self->get_indicator(task => 'main', _init=>0);
             {
                 no strict 'refs';
                 my $v = "$caller\::progress";
@@ -41,10 +41,12 @@ sub get_indicator {
     my $task   = delete($args{task}) // "main";
     my $target = delete($args{target});
     my $output = delete($args{output});
+    my $init   = delete($args{_init}) // 1;
     die "Unknown argument(s): ".join(", ", keys(%args)) if keys(%args);
     if (!$indicators{$task}) {
-        $indicators{$task} = bless({}, $class);
-        $indicators{$task}->init(task=>$task, target=>$target, output=>$output);
+        $indicators{$task} = bless({task=>$task}, $class);
+        $indicators{$task}->init(target=>$target, output=>$output)
+            if $init;
     }
     $indicators{$task};
 }
@@ -118,13 +120,17 @@ sub update {
 
 sub reset {
     my ($self, %args) = @_;
-    $self->update(%args, pos => 0);
+    $args{message} //= "Reset";
+    $args{pos} = 0;
+    $self->update(%args);
 }
 
 sub finish {
     my ($self, %args) = @_;
     if (defined $self->{target}) {
-        $self->update(%args, pos => $self->{target});
+        $args{message} //= "Finish";
+        $args{pos} = $self->{target};
+        $self->update(%args);
     }
 }
 
@@ -154,7 +160,7 @@ Progress::Any - Record progress to any output
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 SYNOPSIS
 
