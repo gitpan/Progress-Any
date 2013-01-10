@@ -2,7 +2,7 @@ NAME
     Progress::Any - Record progress to any output
 
 VERSION
-    version 0.03
+    version 0.04
 
 SYNOPSIS
     A simple example:
@@ -22,7 +22,7 @@ SYNOPSIS
 
          sleep 1;
      }
-     $progress->finish; # no-op here, since update() has been called 10 times
+     $progress->finish; # pos will be set to target if not already so
 
     Another example, demonstrating multiple indicators:
 
@@ -33,13 +33,13 @@ SYNOPSIS
      my $p2 = Progress::Any->get_indicator(task => 'main.copy');
 
      $p1->set_target(target => 10);
-     $p1->update();
+     $p1->update(); # by default increase pos by 1
      $p2->update();
 
 DESCRIPTION
     "Progress::Any" is an interface for applications that want to display
     progress to users. It decouples progress updating and output, rather
-    similar to how Log::Any decouple log producers and consumers (output).
+    similar to how Log::Any decouples log producers and consumers (output).
     By setting output only in the application and not in modules, you
     separate the formatting/display concern from the logic.
 
@@ -186,6 +186,10 @@ SEE ALSO
     Term::ProgressBar::Simple, Time::Progress, among others.
 
     Output modules: "Progress::Any::Output::*"
+
+    See examples on how Progress::Any is used by other modules:
+    Perinci::CmdLine (supplying progress object to functions), Git::Bunch
+    (using progress object).
 
 AUTHOR
     Steven Haryanto <stevenharyanto@gmail.com>

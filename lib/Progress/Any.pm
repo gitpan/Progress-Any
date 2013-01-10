@@ -6,7 +6,7 @@ use warnings;
 
 use Progress::Any::Output::Null;
 
-our $VERSION = '0.03'; # VERSION
+our $VERSION = '0.04'; # VERSION
 
 sub import {
     my ($self, @args) = @_;
@@ -153,7 +153,7 @@ Progress::Any - Record progress to any output
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 SYNOPSIS
 
@@ -174,7 +174,7 @@ A simple example:
 
      sleep 1;
  }
- $progress->finish; # no-op here, since update() has been called 10 times
+ $progress->finish; # pos will be set to target if not already so
 
 Another example, demonstrating multiple indicators:
 
@@ -185,14 +185,14 @@ Another example, demonstrating multiple indicators:
  my $p2 = Progress::Any->get_indicator(task => 'main.copy');
 
  $p1->set_target(target => 10);
- $p1->update();
+ $p1->update(); # by default increase pos by 1
  $p2->update();
 
 =head1 DESCRIPTION
 
 C<Progress::Any> is an interface for applications that want to display progress
 to users. It decouples progress updating and output, rather similar to how
-L<Log::Any> decouple log producers and consumers (output). By setting output
+L<Log::Any> decouples log producers and consumers (output). By setting output
 only in the application and not in modules, you separate the formatting/display
 concern from the logic.
 
@@ -370,6 +370,9 @@ Other progress modules on CPAN: L<Term::ProgressBar>,
 L<Term::ProgressBar::Simple>, L<Time::Progress>, among others.
 
 Output modules: C<Progress::Any::Output::*>
+
+See examples on how Progress::Any is used by other modules: L<Perinci::CmdLine>
+(supplying progress object to functions), L<Git::Bunch> (using progress object).
 
 =head1 AUTHOR
 
