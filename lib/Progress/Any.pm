@@ -6,14 +6,7 @@ use warnings;
 
 use Progress::Any::Output::Null;
 
-#use overload
-#    '++' => \&_increment,
-#    '+=' => \&_increment,
-#    '--' => \&_decrement,
-#    '-=' => \&_decrement,
-#    ;
-
-our $VERSION = '0.02'; # VERSION
+our $VERSION = '0.03'; # VERSION
 
 sub import {
     my ($self, @args) = @_;
@@ -160,27 +153,24 @@ Progress::Any - Record progress to any output
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 SYNOPSIS
 
 A simple example:
 
  use Progress::Any qw($progress);
- use Progress::Any::Output::Terminal;
+ use Progress::Any::Output::TermProgressBar;
 
  $progress->init(
      target  => 10,
-     output  => Progress::Any::Output::Terminal->new(...),
+     output  => Progress::Any::Output::TermProgressBar->new(),
  );
  for (1..10) {
      $progress->update(
-         current => $_,
+         pos     => $_,
          message => "Doing item #$_ ...",
      );
-
-     # ditto, without message, demonstrating overloading
-     $progress++;
 
      sleep 1;
  }
@@ -190,7 +180,7 @@ Another example, demonstrating multiple indicators:
 
  use Progress::Any;
 
- Progress::Any->set_default_output('Progress::Any::Output::LogAny');
+ Progress::Any->set_output(output=>Progress::Any::Output::LogAny->new);
  my $p1 = Progress::Any->get_indicator(task => 'main.download');
  my $p2 = Progress::Any->get_indicator(task => 'main.copy');
 
@@ -202,7 +192,9 @@ Another example, demonstrating multiple indicators:
 
 C<Progress::Any> is an interface for applications that want to display progress
 to users. It decouples progress updating and output, rather similar to how
-L<Log::Any> decouple log producers and consumers (output).
+L<Log::Any> decouple log producers and consumers (output). By setting output
+only in the application and not in modules, you separate the formatting/display
+concern from the logic.
 
 The list of features:
 
@@ -222,8 +214,10 @@ I<its> parent is updated, and so on).
 
 Output is handled by one of C<Progress::Any::Output::*> modules. Each indicator
 can use one or more outputs. Currently available outputs: null, terminal, log
-(to L<Log::Any>), callback. Other possible outputs: IM/twitter/SMS, GUI,
-web/AJAX.
+(to L<Log::Any>), callback. Other possible output ideas: IM/twitter/SMS, GUI,
+web/AJAX, remote/RPC (over L<Riap> for example, so that
+L<Perinci::CmdLine>-based command-line clients can display progress update from
+remote functions).
 
 =item * message
 
@@ -255,7 +249,7 @@ The main indicator. Equivalent to:
 
 None of the functions are exported by default, but they are exportable.
 
-=head2 get_indicator(%args)
+=head2 Progress::Any->get_indicator(%args)
 
 Get a progress indicator.
 
@@ -267,7 +261,7 @@ Arguments:
 
 =back
 
-=head2 set_output(%args)
+=head2 Progress::Any->set_output(%args)
 
 Set default output for newly created indicators. Arguments:
 
@@ -372,7 +366,10 @@ Set indicator to 100%. Will also update output if necessary.
 
 =head1 SEE ALSO
 
-Other progress modules
+Other progress modules on CPAN: L<Term::ProgressBar>,
+L<Term::ProgressBar::Simple>, L<Time::Progress>, among others.
+
+Output modules: C<Progress::Any::Output::*>
 
 =head1 AUTHOR
 
@@ -380,7 +377,7 @@ Steven Haryanto <stevenharyanto@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by Steven Haryanto.
+This software is copyright (c) 2013 by Steven Haryanto.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

@@ -2,26 +2,23 @@ NAME
     Progress::Any - Record progress to any output
 
 VERSION
-    version 0.02
+    version 0.03
 
 SYNOPSIS
     A simple example:
 
      use Progress::Any qw($progress);
-     use Progress::Any::Output::Terminal;
+     use Progress::Any::Output::TermProgressBar;
 
      $progress->init(
          target  => 10,
-         output  => Progress::Any::Output::Terminal->new(...),
+         output  => Progress::Any::Output::TermProgressBar->new(),
      );
      for (1..10) {
          $progress->update(
-             current => $_,
+             pos     => $_,
              message => "Doing item #$_ ...",
          );
-
-         # ditto, without message, demonstrating overloading
-         $progress++;
 
          sleep 1;
      }
@@ -31,7 +28,7 @@ SYNOPSIS
 
      use Progress::Any;
 
-     Progress::Any->set_default_output('Progress::Any::Output::LogAny');
+     Progress::Any->set_output(output=>Progress::Any::Output::LogAny->new);
      my $p1 = Progress::Any->get_indicator(task => 'main.download');
      my $p2 = Progress::Any->get_indicator(task => 'main.copy');
 
@@ -43,6 +40,8 @@ DESCRIPTION
     "Progress::Any" is an interface for applications that want to display
     progress to users. It decouples progress updating and output, rather
     similar to how Log::Any decouple log producers and consumers (output).
+    By setting output only in the application and not in modules, you
+    separate the formatting/display concern from the logic.
 
     The list of features:
 
@@ -60,8 +59,10 @@ DESCRIPTION
 
         Output is handled by one of "Progress::Any::Output::*" modules. Each
         indicator can use one or more outputs. Currently available outputs:
-        null, terminal, log (to Log::Any), callback. Other possible outputs:
-        IM/twitter/SMS, GUI, web/AJAX.
+        null, terminal, log (to Log::Any), callback. Other possible output
+        ideas: IM/twitter/SMS, GUI, web/AJAX, remote/RPC (over Riap for
+        example, so that Perinci::CmdLine-based command-line clients can
+        display progress update from remote functions).
 
     *   message
 
@@ -87,14 +88,14 @@ EXPORTS
 METHODS
     None of the functions are exported by default, but they are exportable.
 
-  get_indicator(%args)
+  Progress::Any->get_indicator(%args)
     Get a progress indicator.
 
     Arguments:
 
     *   task => STR (default: main)
 
-  set_output(%args)
+  Progress::Any->set_output(%args)
     Set default output for newly created indicators. Arguments:
 
     *   task => STR
@@ -181,13 +182,16 @@ METHODS
     Set indicator to 100%. Will also update output if necessary.
 
 SEE ALSO
-    Other progress modules
+    Other progress modules on CPAN: Term::ProgressBar,
+    Term::ProgressBar::Simple, Time::Progress, among others.
+
+    Output modules: "Progress::Any::Output::*"
 
 AUTHOR
     Steven Haryanto <stevenharyanto@gmail.com>
 
 COPYRIGHT AND LICENSE
-    This software is copyright (c) 2012 by Steven Haryanto.
+    This software is copyright (c) 2013 by Steven Haryanto.
 
     This is free software; you can redistribute it and/or modify it under
     the same terms as the Perl 5 programming language system itself.
