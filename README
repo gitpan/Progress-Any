@@ -2,7 +2,7 @@ NAME
     Progress::Any - Record progress to any output
 
 VERSION
-    version 0.06
+    version 0.07
 
 SYNOPSIS
     In your module:
@@ -164,6 +164,10 @@ METHODS
 
   $progress->pos([ NUM ]) => NUM
     Get or set the current position.
+
+  $progress->total_target => NUM
+    Get total target, which is target plus all the descendant's targets. If
+    any of those is undefined, return undef.
 
   $progress->update(%args)
     Update indicator. Will also, usually, update associated output(s) if
