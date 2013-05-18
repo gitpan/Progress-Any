@@ -19,4 +19,4 @@ requires:
 resources:
   homepage: http://metacpan.org/release/Progress-Any
   repository: http://github.com/sharyanto/perl-Progress-Any
-version: 0.05
+version: 0.06

@@ -2,7 +2,7 @@ NAME
     Progress::Any - Record progress to any output
 
 VERSION
-    version 0.05
+    version 0.06
 
 SYNOPSIS
     In your module:
@@ -142,8 +142,8 @@ METHODS
 
     *   task => STR (default: main)
 
-        If not specified will be set to caller's package + subroutine ("::"
-        will be replaced with "."), e.g. if you are calling this method from
+        If not specified will be set to caller's package ("::" will be
+        replaced with "."), e.g. if you are calling this method from
         "main::foo", then task will be set to "main.foo". If caller is code
         inside eval, "main" will be used instead.
 
