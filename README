@@ -2,46 +2,86 @@ NAME
     Progress::Any - Record progress to any output
 
 VERSION
-    version 0.04
+    version 0.05
 
 SYNOPSIS
-    A simple example:
+    In your module:
 
-     use Progress::Any qw($progress);
-     use Progress::Any::Output::TermProgressBar;
-
-     $progress->init(
-         target  => 10,
-         output  => Progress::Any::Output::TermProgressBar->new(),
-     );
-     for (1..10) {
-         $progress->update(
-             pos     => $_,
-             message => "Doing item #$_ ...",
-         );
-
-         sleep 1;
-     }
-     $progress->finish; # pos will be set to target if not already so
-
-    Another example, demonstrating multiple indicators:
-
+     package MyApp;
      use Progress::Any;
 
-     Progress::Any->set_output(output=>Progress::Any::Output::LogAny->new);
+     sub download {
+         my @urls = @_;
+         return unless @urls;
+         my $progress = Progress::Any->get_indicator(task => "download");
+         $progress->pos(0);
+         $progress->target(~~@urls);
+         for my $url (@urls) {
+             # download the $url ...
+             $progress->update(message => "Downloaded $url");
+         }
+         $progress->finish;
+     }
+
+    In your application:
+
+     use MyApp;
+     use Progress::Any::Output;
+     Progress::Any::Output->set('TermProgressBarColor');
+
+     MyApp::download("url1", "url2", "url3", "url4", "url5");
+
+    When run, your application will display something like this, in
+    succession:
+
+      20% [====== Downloaded url1           ]0m00s Left
+      40% [=======Downloaded url2           ]0m01s Left
+      60% [=======Downloaded url3           ]0m01s Left
+      80% [=======Downloaded url4==         ]0m00s Left
+
+    (At 100%, the output automatically cleans up the progress bar).
+
+    Another example, demonstrating multiple indicators and the LogAny
+    output:
+
+     use Progress::Any;
+     use Progress::Any::Output;
+     use Log::Any::App;
+
+     Progress::Any::Output->set('LogAny', format => '[%c/%C] %m');
      my $p1 = Progress::Any->get_indicator(task => 'main.download');
      my $p2 = Progress::Any->get_indicator(task => 'main.copy');
 
-     $p1->set_target(target => 10);
-     $p1->update(); # by default increase pos by 1
-     $p2->update();
+     $p1->target(10);
+     $p1->update(message => "downloading A"); # by default increase pos by 1
+     $p2->update(message => "copying A");
+     $p1->update(message => "downloading B");
+     $p2->update(message => "copying B");
+
+    will show something like:
+
+     [1/10] downloading A
+     [1/?] copying A
+     [2/10] downloading B
+     [2/?] copying B
 
 DESCRIPTION
     "Progress::Any" is an interface for applications that want to display
     progress to users. It decouples progress updating and output, rather
     similar to how Log::Any decouples log producers and consumers (output).
-    By setting output only in the application and not in modules, you
-    separate the formatting/display concern from the logic.
+    The API is also rather similar to Log::Any, except *Adapter* is called
+    *Output* and *category* is called *task*.
+
+    Progress::Any records position/target and calculation of times (elapsed,
+    remaining). One of the output modules (Progress::Any::Output::*)
+    displays this information.
+
+    In your modules, you typically only needs to use Progress::Any, get one
+    or more indicators, set position/target and update it during work. In
+    your application, you use Progress::Any::Output and set/add one or more
+    outputs to display the progress. By setting output only in the
+    application and not in modules, you separate the formatting/display
+    concern from the logic.
 
     The list of features:
 
@@ -49,35 +89,44 @@ DESCRIPTION
 
         You can use different indicator for each task/subtask.
 
-    *   hierarchiecal progress
-
-        A task can be divided into subtasks. After a subtask finishes, its
-        parent task's progress is incremented by 1 automatically (and if
-        *that* task is finished, *its* parent is updated, and so on).
-
     *   customizable output
 
-        Output is handled by one of "Progress::Any::Output::*" modules. Each
-        indicator can use one or more outputs. Currently available outputs:
-        null, terminal, log (to Log::Any), callback. Other possible output
-        ideas: IM/twitter/SMS, GUI, web/AJAX, remote/RPC (over Riap for
+        Output is handled by one of "Progress::Any::Output::*" modules.
+        Currently available outputs: "Null" (no output), "TermMessage"
+        (display as simple message on terminal), "TermProgressBarColor"
+        (display as color progress bar on terminal), "LogAny" (log using
+        Log::Any), "Callback" (call a subroutine). Other possible output
+        ideas: IM/Twitter/SMS, GUI, web/AJAX, remote/RPC (over Riap for
         example, so that Perinci::CmdLine-based command-line clients can
         display progress update from remote functions).
+
+    *   multiple outputs
+
+        One or more outputs can be used to display one or more indicators.
+
+    *   hierarchiecal progress
+
+        A task can be divided into subtasks. If a subtask is updated, its
+        parent task (and its parent, and so on) are also updated
+        proportionally.
 
     *   message
 
         Aside from setting a number/percentage, allow including a message
         when updating indicator.
 
-    *   indicator reset
-
     *   undefined target
 
-        Target can be undefined, so a bar output might not show any bar, but
-        can still show messages.
+        Target can be undefined, so a bar output might not show any bar (or
+        show them, but without percentage indicator), but can still show
+        messages.
+
+    *   retargetting
+
+        Target can be changed in the middle of things.
 
 STATUS
-    API is not stable yet.
+    API might still change, will be stabilized in 1.0.
 
 EXPORTS
   $progress
@@ -86,44 +135,39 @@ EXPORTS
      Progress::Any->get_indicator(task => 'main')
 
 METHODS
-    None of the functions are exported by default, but they are exportable.
-
-  Progress::Any->get_indicator(%args)
-    Get a progress indicator.
+  Progress::Any->get_indicator(%args) => OBJ
+    Get a progress indicator for a certain task.
 
     Arguments:
 
     *   task => STR (default: main)
 
-  Progress::Any->set_output(%args)
-    Set default output for newly created indicators. Arguments:
+        If not specified will be set to caller's package + subroutine ("::"
+        will be replaced with "."), e.g. if you are calling this method from
+        "main::foo", then task will be set to "main.foo". If caller is code
+        inside eval, "main" will be used instead.
 
-    *   task => STR
+    *   target => NUM (default: undef)
 
-        Select task to set the output for. If unset, will set for newly
-        created indicators.
+        Optional. Can be used to initialize target. Will only be done once
+        for the same task and not for the subsequent get_indicator() calls
+        on the same task.
 
-    *   output => OBJ
+    *   pos => NUM (default: 0)
 
-        If unset, will use parent task's output, or if no parent exists,
-        default output (which is the null output).
+        Optional. Can be used to initialize starting position. Will only be
+        done once for the same task and not for the subsequent
+        get_indicator() calls on the same task.
 
-  $progress->init(%args)
-    Initialize the indicator. Should only be called once.
+  $progress->target([ NUM ]) => NUM
+    Get or (re)set target. Can be left or set to undef.
 
-    Arguments:
-
-    *   target => NUM
-
-    *   output => OBJ or ARRAY
-
-        Set the output(s) for this indicator. If unset, will use the default
-        indicator set by "set_output".
+  $progress->pos([ NUM ]) => NUM
+    Get or set the current position.
 
   $progress->update(%args)
-    Update indicator. Will optionally update each associated output(s) if
-    necessary. By necessary it means if update maximum frequency and other
-    output's settings are not violated.
+    Update indicator. Will also, usually, update associated output(s) if
+    necessary.
 
     Arguments:
 
@@ -133,53 +177,94 @@ METHODS
         1. If pos is larger than target, outputs will generally still show
         100%. Note that fractions are allowed.
 
-    *   inc => NUM
-
-        If "pos" is not specified, this parameter is used instead, to
-        increment the current position by a certain number (the default is
-        1). Note that fractions are allowed.
-
     *   message => STR
 
         Set a message to be displayed when updating indicator.
 
-    *   level => STR
+    *   level => NUM
 
-        EXPERIMENTAL. Setting the importance level of this update. Default
-        is "normal" (or "low" for fractional update), but can be set to
-        "high" or "low". Output can choose to ignore updates lower than a
-        certain level.
+        EXPERIMENTAL, NOT YET IMPLEMENTED BY MOST OUTPUTS. Setting the
+        importance level of this update. Default is "normal" (or "low" for
+        fractional update), but can be set to "high" or "low". Output can
+        choose to ignore updates lower than a certain level.
 
     *   status => STR
 
-        Set the status of this update. Some outputs interpret/display this,
-        for example the Console:
+        Set the status of this update, usually done on finish(). Some
+        outputs interpret/display this, for example the "TermMessage"
+        output:
 
         Update:
 
-         $progress->update(pos=>2, message=>'Copying file ...');
+         my $progress = Progress::Any->get_indicator(
+             task => 'copy', message => 'Copying file ...');
+         $progress->update(message=>'file1.txt');
 
-        Output ("_" indicates cursor position):
+        Output:
 
-         Copying file ... _
+         Copying file ... file1.txt
 
         Update:
 
-         $progress->update(pos=>2, status=>'success');
+         $progress->finish(status=>'success');
 
         Output:
 
          Copying file ... success
-         _
 
-  $progress->set_target(target => $target)
-    (Re-)set target. Will also update output if necessary.
+    *   finished => BOOL
 
-  $progress->reset
-    Reset indicator back to zero. Will also update output if necessary.
+        Can be set to 1 (e.g. by finish()) if task is completed.
 
-  $progress->finish
-    Set indicator to 100%. Will also update output if necessary.
+  $progress->finish(%args)
+    Equivalent to:
+
+     $progress->update(pos => $progress->target, finished=>1, %args);
+
+    The "finished => 1" part currently does nothing particularly special,
+    except to record completion.
+
+  $progress->fill_template($template, \%values)
+    Fill template with values, like in sprintf. Usually used by output
+    modules. Available templates:
+
+    *   "%(width)t"
+
+        Task.
+
+    *   "%(width)a"
+
+        Elapsed time. Currently using Time::Duration concise format, e.g.
+        10s, 1m40s, 16m40s, 1d4h, and so on. Format might be configurable
+        and localizable in the future.
+
+    *   %e
+
+        Estimated completion time. Currently using Time::Duration concise
+        format, e.g. 10s, 1m40s, 16m40s, 1d4h, and so on. Format might be
+        configurable and localizable in the future.
+
+    *   "%(width).(prec)p"
+
+        Percentage of completion. You can also specify width and precision,
+        like %f in Perl sprintf. Default is "%3.0p". If percentage is
+        unknown (due to target being undef) will translate to "?".
+
+    *   "%(width).(prec)c"
+
+        Current position (pos) (or counter).
+
+    *   "%(width).(prec)C"
+
+        Target (or total item count). If undefined, will translate to "?".
+
+    *   %m
+
+        Message. If message is unspecified, translate to empty string.
+
+    *   "%%"
+
+        A literal "%" sign.
 
 SEE ALSO
     Other progress modules on CPAN: Term::ProgressBar,
