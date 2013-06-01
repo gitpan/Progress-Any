@@ -2,7 +2,7 @@ NAME
     Progress::Any - Record progress to any output
 
 VERSION
-    version 0.08
+    version 0.09
 
 SYNOPSIS
     In your module:

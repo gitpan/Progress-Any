@@ -7,7 +7,7 @@ use warnings;
 use Time::Duration qw();
 use Time::HiRes qw(time);
 
-our $VERSION = '0.08'; # VERSION
+our $VERSION = '0.09'; # VERSION
 
 sub import {
     my ($self, @args) = @_;
@@ -111,14 +111,13 @@ sub target {
                   RECOUNT:
                     for (keys %indicators) {
                         my $prefix = length($partask) ? "$partask." : "";
-                        next unless /\Q$prefix\E\w+\z/;
+                        next unless /\Q$prefix\E\w+/;
                         if (!defined($indicators{$_}{target})) {
                             $indicators{$partask}{ctarget} = undef;
                             last RECOUNT;
                         } else {
                             $indicators{$partask}{ctarget} +=
-                                $indicators{$_}{target} +
-                                    ($indicators{$_}{ctarget} // 0);
+                                $indicators{$_}{target};
                         }
                     }
                 }
@@ -358,7 +357,7 @@ Progress::Any - Record progress to any output
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 SYNOPSIS
 

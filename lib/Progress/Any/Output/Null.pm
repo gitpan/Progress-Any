@@ -4,7 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.08'; # VERSION
+our $VERSION = '0.09'; # VERSION
 
 sub new {
     my ($class, %args) = @_;
@@ -28,7 +28,7 @@ Progress::Any::Output::Null - Null output
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =for Pod::Coverage ^(new|update)$
 
