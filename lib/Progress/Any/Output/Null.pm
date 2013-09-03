@@ -4,7 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.09'; # VERSION
+our $VERSION = '0.10'; # VERSION
 
 sub new {
     my ($class, %args) = @_;
@@ -18,8 +18,8 @@ sub update {
 1;
 # ABSTRACT: Null output
 
-
 __END__
+
 =pod
 
 =head1 NAME
@@ -28,7 +28,7 @@ Progress::Any::Output::Null - Null output
 
 =head1 VERSION
 
-version 0.09
+version 0.10
 
 =for Pod::Coverage ^(new|update)$
 
@@ -44,4 +44,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

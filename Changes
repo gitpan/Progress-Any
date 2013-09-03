@@ -1,5 +1,40 @@
 Revision history for Progress-Any
 
+0.10    2013-09-03 (SHARYANTO)
+
+        - Rework internals and some API. This is the second API revision.
+
+        [ENHANCEMENTS]
+
+        - Allow reinitializing 'pos' and 'target' (and all other rw attributes)
+          at subsequent get_indicator() for the same task. This is to make
+          program more predictable, instead of silently ignoring parameters.
+
+        - Allow indicator to be start()'ed and stop()'ed at any time.
+
+        - Add task title (in addition to its name).
+
+        - Allow specifying estimated remaining of a task when creating an
+          indicator, via passing 'remaining'.
+
+        - New fill templates: %r (remaining time), %R (remaining time or elapsed
+          time).
+
+        [INCOMPATIBLE CHANGES]
+
+        - The $progress export is now set to the root ('') indicator instead of
+          'main', so it includes all indicators.
+
+        - fill_template(): re-rationalize template names: %a (elapsed time)
+          becomes %e, %c (pos) becomes %P, %C (target) becomes %T, %t (task
+          name) becomes %n.
+
+        [REMOVED FEATURES]
+
+        - Remove 'status' in update() because it is unneeded (concerning outputs
+          can use 'message' instead).
+
+
 0.09    2013-05-18 (SHARYANTO)
 
         - Bugfix: double counting of children's targets.
@@ -30,7 +65,7 @@ Revision history for Progress-Any
 
 0.05    2013-05-18 (SHARYANTO)
 
-        Happy birthday, bro!
+        - Happy birthday, bro!
 
         [INCOMPATIBLE CHANGES]
 
@@ -54,20 +89,20 @@ Revision history for Progress-Any
 
 0.04    2013-01-10 (SHARYANTO)
 
-        No functional changes. More POD tweaks/fixes.
+        - No functional changes. More POD tweaks/fixes.
 
 
 0.03    2013-01-10 (SHARYANTO)
 
-        No functional changes. Update/fix Synopsis.
+        - No functional changes. Update/fix Synopsis.
 
 
 0.02    2012-10-24 (SHARYANTO)
 
-        Some tweaks/fixes: don't pre-init $progress, give default message to
-        reset() and finish().
+        - Some tweaks/fixes: don't pre-init $progress, give default message to
+          reset() and finish().
 
 
 0.01    2012-10-24 (SHARYANTO)
 
-        First, early release.
+        - First, early release.
