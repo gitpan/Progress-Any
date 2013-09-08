@@ -17,7 +17,7 @@ my %module_build_args = (
     "Steven Haryanto <stevenharyanto\@gmail.com>"
   ],
   "dist_name" => "Progress-Any",
-  "dist_version" => "0.10",
+  "dist_version" => "0.11",
   "license" => "perl",
   "module_name" => "Progress::Any",
   "recommends" => {},
@@ -28,8 +28,10 @@ my %module_build_args = (
   },
   "script_files" => [],
   "test_requires" => {
+    "Capture::Tiny" => 0,
     "Test::Exception" => 0,
-    "Test::More" => "0.98"
+    "Test::More" => "0.98",
+    "blib" => 0
   }
 );
 

@@ -7,7 +7,7 @@ use warnings;
 use Time::Duration qw();
 use Time::HiRes qw(time);
 
-our $VERSION = '0.10'; # VERSION
+our $VERSION = '0.11'; # VERSION
 
 sub import {
     my ($self, @args) = @_;
@@ -511,7 +511,7 @@ Progress::Any - Record progress to any output
 
 =head1 VERSION
 
-version 0.10
+version 0.11
 
 =head1 SYNOPSIS
 
