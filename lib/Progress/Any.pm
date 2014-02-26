@@ -7,7 +7,7 @@ use warnings;
 use Time::Duration qw();
 use Time::HiRes qw(time);
 
-our $VERSION = '0.12'; # VERSION
+our $VERSION = '0.13'; # VERSION
 
 sub import {
     my ($self, @args) = @_;
@@ -26,8 +26,14 @@ sub import {
     }
 }
 
-our %indicators; # key = task name
-our %outputs;    # key = task name, value = [$outputobj, ...]
+# store Progress::Any objects for each task
+our %indicators;  # key = task name
+
+# store output objects
+our %outputs;     # key = task name, value = [$outputobj, ...]
+
+# store settings/data for each object
+our %output_data; # key = "$output_object", value = {key=>val, ...}
 
 # internal attributes:
 # - _elapsed (float*) = accumulated elapsed time so far
@@ -344,6 +350,42 @@ sub _update {
     return;
 }
 
+sub _should_update_output {
+    my ($self, $output, $now) = @_;
+
+    my $key = "$output";
+    $output_data{$key} //= {};
+    my $odata = $output_data{$key};
+    if (!defined($odata->{mtime})) {
+        # output has never been updated, update
+        return 1;
+    } elsif ($self->{state} eq 'finished') {
+        # finishing, update the output to show finished state
+        return 1;
+    } elsif ($odata->{force_update}) {
+        # force update
+        delete $odata->{force_update};
+        return 1;
+    # } elsif ($args->{prio} eq 'low') {
+        # perhaps provide something like this? a low-priority or minor update so
+        # we don't have to update the outputs?
+    } else {
+        # normal update, update if not too frequent
+        if (!defined($odata->{freq})) {
+            # negative number means seconds, positive means pos delta. only
+            # update if that number of seconds, or that difference in pos has
+            # been passed.
+            $odata->{freq} = -0.5;
+        }
+        if ($odata->{freq} < 0) {
+            return 1 if $now >= $odata->{mtime} - $odata->{freq};
+        } else {
+            return 1 if abs($self->{pos} - $odata->{pos}) >= $odata->{freq};
+        }
+        return 0;
+    }
+}
+
 sub update {
     my ($self, %args) = @_;
 
@@ -364,12 +406,16 @@ sub update {
         while (1) {
             if ($outputs{$task}) {
                 for my $output (@{ $outputs{$task} }) {
+                    next unless $self->_should_update_output($output, $now);
                     $output->update(
                         indicator => $indicators{$task},
                         message   => $message,
                         level     => $level,
                         time      => $now,
                     );
+                    my $key = "$output";
+                    $output_data{$key}{mtime} = $now;
+                    $output_data{$key}{pos}   = $pos;
                 }
             }
             last unless $task =~ s/\.?\w+\z//;
@@ -505,13 +551,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Progress::Any - Record progress to any output
 
 =head1 VERSION
 
-version 0.12
+version 0.13
 
 =head1 SYNOPSIS
 
@@ -867,13 +915,29 @@ Output modules: C<Progress::Any::Output::*>
 See examples on how Progress::Any is used by other modules: L<Perinci::CmdLine>
 (supplying progress object to functions), L<Git::Bunch> (using progress object).
 
+=head1 HOMEPAGE
+
+Please visit the project's homepage at L<https://metacpan.org/release/Progress-Any>.
+
+=head1 SOURCE
+
+Source repository is at L<https://github.com/sharyanto/perl-Progress-Any>.
+
+=head1 BUGS
+
+Please report any bugs or feature requests on the bugtracker website L<https://rt.cpan.org/Public/Dist/Display.html?Name=Progress-Any>
+
+When submitting a bug or request, please include a test-file or a
+patch to an existing test-file that illustrates the bug or desired
+feature.
+
 =head1 AUTHOR
 
 Steven Haryanto <stevenharyanto@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Steven Haryanto.
+This software is copyright (c) 2014 by Steven Haryanto.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
