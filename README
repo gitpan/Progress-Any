@@ -2,7 +2,8 @@ NAME
     Progress::Any - Record progress to any output
 
 VERSION
-    version 0.13
+    This document describes version 0.14 of Progress::Any (from Perl
+    distribution Progress-Any), released on 2014-05-01.
 
 SYNOPSIS
     In your module:

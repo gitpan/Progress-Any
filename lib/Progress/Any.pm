@@ -7,7 +7,7 @@ use warnings;
 use Time::Duration qw();
 use Time::HiRes qw(time);
 
-our $VERSION = '0.13'; # VERSION
+our $VERSION = '0.14'; # VERSION
 
 sub import {
     my ($self, @args) = @_;
@@ -559,7 +559,7 @@ Progress::Any - Record progress to any output
 
 =head1 VERSION
 
-version 0.13
+This document describes version 0.14 of Progress::Any (from Perl distribution Progress-Any), released on 2014-05-01.
 
 =head1 SYNOPSIS
 
