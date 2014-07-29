@@ -7,7 +7,7 @@ use warnings;
 use Time::Duration qw();
 use Time::HiRes qw(time);
 
-our $VERSION = '0.14'; # VERSION
+our $VERSION = '0.15'; # VERSION
 
 sub import {
     my ($self, @args) = @_;
@@ -559,7 +559,7 @@ Progress::Any - Record progress to any output
 
 =head1 VERSION
 
-This document describes version 0.14 of Progress::Any (from Perl distribution Progress-Any), released on 2014-05-01.
+This document describes version 0.15 of Progress::Any (from Perl distribution Progress-Any), released on 2014-07-29.
 
 =head1 SYNOPSIS
 
@@ -603,7 +603,7 @@ Another example, demonstrating multiple indicators and the LogAny output:
  use Progress::Any::Output;
  use Log::Any::App;
 
- Progress::Any::Output->set('LogAny', format => '[%-8t] [%P/%2T] %m');
+ Progress::Any::Output->set('LogAny', template => '[%-8t] [%P/%2T] %m');
  my $pdl = Progress::Any->get_indicator(task => 'download');
  my $pcp = Progress::Any->get_indicator(task => 'copy');
 
