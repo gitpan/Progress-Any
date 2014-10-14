@@ -2,7 +2,7 @@ NAME
     Progress::Any - Record progress to any output
 
 VERSION
-    This document describes version 0.16 of Progress::Any (from Perl
+    This document describes version 0.17 of Progress::Any (from Perl
     distribution Progress-Any), released on 2014-10-14.
 
 SYNOPSIS
@@ -99,6 +99,11 @@ SYNOPSIS
      Perinci::CmdLine->new(url => '/main/check_dir')->run;
 
 DESCRIPTION
+    Screenshots:
+
+STATUS
+    API might still change, will be stabilized in 1.0.
+
     "Progress::Any" is an interface for applications that want to display
     progress to users. It decouples progress updating and output, rather
     similar to how Log::Any decouples log producers and consumers (output).
@@ -157,9 +162,6 @@ DESCRIPTION
     *   retargetting
 
         Target can be changed in the middle of things.
-
-STATUS
-    API might still change, will be stabilized in 1.0.
 
 EXPORTS
   $progress => OBJ

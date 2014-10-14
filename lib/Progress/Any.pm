@@ -1,13 +1,14 @@
 package Progress::Any;
 
+our $DATE = '2014-10-14'; # DATE
+our $VERSION = '0.17'; # VERSION
+
 use 5.010001;
 use strict;
 use warnings;
 
 use Time::Duration qw();
 use Time::HiRes qw(time);
-
-our $VERSION = '0.16'; # VERSION
 
 sub import {
     my ($self, @args) = @_;
@@ -559,7 +560,7 @@ Progress::Any - Record progress to any output
 
 =head1 VERSION
 
-This document describes version 0.16 of Progress::Any (from Perl distribution Progress-Any), released on 2014-10-14.
+This document describes version 0.17 of Progress::Any (from Perl distribution Progress-Any), released on 2014-10-14.
 
 =head1 SYNOPSIS
 
@@ -655,6 +656,20 @@ C<-progress>:
 
 =head1 DESCRIPTION
 
+Screenshots:
+
+=head1 STATUS
+
+API might still change, will be stabilized in 1.0.
+
+=begin HTML
+
+<p><img src="http://blogs.perl.org/users/perlancar/progany-tpc-sample.jpg" /><br />Using TermProgressBarColor output
+
+<p><img src="http://blogs.perl.org/users/perlancar/progany-dn-sample.jpg" /><br />Using DesktopNotify output
+
+=end HTML
+
 C<Progress::Any> is an interface for applications that want to display progress
 to users. It decouples progress updating and output, rather similar to how
 L<Log::Any> decouples log producers and consumers (output). The API is also
@@ -713,10 +728,6 @@ but without percentage indicator), but can still show messages.
 Target can be changed in the middle of things.
 
 =back
-
-=head1 STATUS
-
-API might still change, will be stabilized in 1.0.
 
 =head1 EXPORTS
 
