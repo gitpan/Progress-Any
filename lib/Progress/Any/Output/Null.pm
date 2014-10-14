@@ -4,7 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.15'; # VERSION
+our $VERSION = '0.16'; # VERSION
 
 sub new {
     my ($class, %args) = @_;
@@ -30,7 +30,7 @@ Progress::Any::Output::Null - Null output
 
 =head1 VERSION
 
-This document describes version 0.15 of Progress::Any::Output::Null (from Perl distribution Progress-Any), released on 2014-07-29.
+This document describes version 0.16 of Progress::Any::Output::Null (from Perl distribution Progress-Any), released on 2014-10-14.
 
 =for Pod::Coverage ^(new|update)$
 
@@ -40,7 +40,7 @@ Please visit the project's homepage at L<https://metacpan.org/release/Progress-A
 
 =head1 SOURCE
 
-Source repository is at L<https://github.com/sharyanto/perl-Progress-Any>.
+Source repository is at L<https://github.com/perlancar/perl-Progress-Any>.
 
 =head1 BUGS
 
@@ -52,11 +52,11 @@ feature.
 
 =head1 AUTHOR
 
-Steven Haryanto <stevenharyanto@gmail.com>
+perlancar <perlancar@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2014 by Steven Haryanto.
+This software is copyright (c) 2014 by perlancar@cpan.org.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

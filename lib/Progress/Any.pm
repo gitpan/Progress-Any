@@ -7,7 +7,7 @@ use warnings;
 use Time::Duration qw();
 use Time::HiRes qw(time);
 
-our $VERSION = '0.15'; # VERSION
+our $VERSION = '0.16'; # VERSION
 
 sub import {
     my ($self, @args) = @_;
@@ -559,7 +559,7 @@ Progress::Any - Record progress to any output
 
 =head1 VERSION
 
-This document describes version 0.15 of Progress::Any (from Perl distribution Progress-Any), released on 2014-07-29.
+This document describes version 0.16 of Progress::Any (from Perl distribution Progress-Any), released on 2014-10-14.
 
 =head1 SYNOPSIS
 
@@ -619,6 +619,39 @@ will show something like:
  [copy    ] [1/ ?] copying A
  [download] [2/10] downloading B
  [copy    ] [2/ ?] copying B
+
+If you use L<Perinci::CmdLine>, you can mark your function as expecting a
+Progress::Any object and it will be supplied to you in a special argument
+C<-progress>:
+
+ use File::chdir;
+ use Perinci::CmdLine;
+ $SPEC{check_dir} = {
+     v => 1.1,
+     args => {
+         dir => {summary=>"Path to check", schema=>"str*", req=>1, pos=>0},
+     },
+     features => {progress=>1},
+ };
+ sub check_dir {
+     my %args = @_;
+     my $progress = $args{-progress};
+     my $dir = $args{dir};
+     (-d $dir) or return [412, "No such dir: $dir"];
+     local $CWD = $dir;
+     opendir my($dh), $dir;
+     my @ent = readdir($dh);
+     $progress->pos(0);
+     $progress->target(~~@ent);
+     for (@ent) {
+         # do the check ...
+         $progress->update(message => $_);
+         sleep 1;
+     }
+     $progress->finish;
+     [200];
+ }
+ Perinci::CmdLine->new(url => '/main/check_dir')->run;
 
 =head1 DESCRIPTION
 
@@ -921,7 +954,7 @@ Please visit the project's homepage at L<https://metacpan.org/release/Progress-A
 
 =head1 SOURCE
 
-Source repository is at L<https://github.com/sharyanto/perl-Progress-Any>.
+Source repository is at L<https://github.com/perlancar/perl-Progress-Any>.
 
 =head1 BUGS
 
@@ -933,11 +966,11 @@ feature.
 
 =head1 AUTHOR
 
-Steven Haryanto <stevenharyanto@gmail.com>
+perlancar <perlancar@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2014 by Steven Haryanto.
+This software is copyright (c) 2014 by perlancar@cpan.org.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
